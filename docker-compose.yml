@@ -1,0 +1,15 @@
+version: '3'
+services:
+    pdp11-server:
+        build: .
+        image: pdp11-server
+        command: pdp11-server
+        expose:
+            - "1234"
+    nginx:
+        build: ./nginx
+        image: nginx
+        ports:
+            - "8080:80"
+        depends_on:
+            - pdp11-server

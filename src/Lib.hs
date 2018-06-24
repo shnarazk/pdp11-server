@@ -1,0 +1,44 @@
+{-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeOperators   #-}
+module Lib
+    ( startApp
+    ) where
+
+import Data.Aeson
+import Data.Aeson.TH
+import Network.Wai
+import Network.Wai.Handler.Warp
+import Servant
+import System.ReadEnvVar (readEnvDef)
+
+data User = User
+  { userId        :: Int
+  , userFirstName :: String
+  , userLastName  :: String
+  } deriving (Eq, Show)
+
+$(deriveJSON defaultOptions ''User)
+
+type API = "users" :> Get '[JSON] [User]
+
+startApp :: IO ()
+startApp = do
+  port <- readEnvDef "PORT" 8080
+  putStrLn $ ";;; start server at " ++ show port
+  run port app
+
+app :: Application
+app = serve api server
+
+api :: Proxy API
+api = Proxy
+
+server :: Server API
+server = return users
+
+users :: [User]
+users = [ User 1 "Isaac" "Newton"
+        , User 2 "Albert" "Einstein"
+        , User 3 "Stephen" "Hawking"
+        ]

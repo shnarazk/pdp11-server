@@ -1,0 +1,11 @@
+build:
+  stage: build
+  script:
+    - docker build -t pdp11-server .
+
+deploy heroku:
+  stage: deploy
+  script:
+    - heroku container:login
+    - heroku container:push web --app pdp11-server
+    - heroku container:release web --app ppd11-server
