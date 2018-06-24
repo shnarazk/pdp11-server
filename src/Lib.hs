@@ -24,7 +24,7 @@ data User = User
 $(deriveJSON defaultOptions ''User)
 
 type API = "users" :> Get '[JSON] [User]
-        :<|> "/" :> Get '[HTML] H.Html
+        :<|> Get '[HTML] H.Html -- the root path: see http://haskell-servant.readthedocs.io/en/stable/tutorial/ApiType.html
 
 startApp :: IO ()
 startApp = do
@@ -39,7 +39,7 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return users :<|> return myHome
+server = return users :<|> return homePage
 
 users :: [User]
 users = [ User 1 "Isaac" "Newton"
@@ -47,8 +47,8 @@ users = [ User 1 "Isaac" "Newton"
         , User 3 "Stephen" "Hawking"
         ]
 
-myHome :: H.Html
-myHome = H.docTypeHtml $ do
+homePage :: H.Html
+homePage = H.docTypeHtml $ do
   H.head $ do
     H.title "Live te serve"
     H.body $ do
