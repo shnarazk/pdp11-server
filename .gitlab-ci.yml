@@ -8,4 +8,4 @@ deploy heroku:
   script:
     - heroku container:login
     - heroku container:push web --app pdp11-server
-    - heroku container:release web --app ppd11-server
+    - heroku container:release web --app pdp11-server
