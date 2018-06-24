@@ -66,6 +66,15 @@ allow-newer: true
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
 
+image:
+  containers:
+    -
+      base: "haskell:8.4.3"
+      executables:
+        - pdp11-server
+      entrypoints:
+        - pdp11-server
+
 nix:
   enable: true
   packages: [ zlib ]

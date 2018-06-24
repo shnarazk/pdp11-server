@@ -9,4 +9,3 @@ RUN stack build --dependencies-only --no-nix
 
 COPY . /app/user
 RUN stack install --no-nix
-CMD pdp11-server

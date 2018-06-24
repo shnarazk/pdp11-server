@@ -20,6 +20,8 @@ library
                      , aeson
                      , read-env-var
                      , servant-server
+                     , servant-blaze
+                     , blaze-html
                      , wai
                      , warp
   default-language:    Haskell2010

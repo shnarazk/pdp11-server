@@ -1,6 +1,7 @@
-{-# LANGUAGE DataKinds       #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators   #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeOperators     #-}
 module Lib
     ( startApp
     ) where
@@ -10,6 +11,8 @@ import Data.Aeson.TH
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
+import Servant.HTML.Blaze
+import qualified Text.Blaze.Html5 as H
 import System.ReadEnvVar (readEnvDef)
 
 data User = User
@@ -21,6 +24,7 @@ data User = User
 $(deriveJSON defaultOptions ''User)
 
 type API = "users" :> Get '[JSON] [User]
+        :<|> "/" :> Get '[HTML] H.Html
 
 startApp :: IO ()
 startApp = do
@@ -35,10 +39,18 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return users
+server = return users :<|> return myHome
 
 users :: [User]
 users = [ User 1 "Isaac" "Newton"
         , User 2 "Albert" "Einstein"
         , User 3 "Stephen" "Hawking"
         ]
+
+myHome :: H.Html
+myHome = H.docTypeHtml $ do
+  H.head $ do
+    H.title "Live te serve"
+    H.body $ do
+      H.h1 "Hello!"
+      H.p "This is a type-safe web server"
