@@ -9,3 +9,4 @@ RUN stack build --dependencies-only --no-nix
 
 COPY . /app/user
 RUN stack install --no-nix
+ENTRYPOINT pdp11-server
