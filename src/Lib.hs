@@ -66,7 +66,7 @@ users = [ User 1 "Isaac" "Newton"
 homePage :: H.Html
 homePage = H.docTypeHtml $ do
   H.head $ do
-    H.title "PDP11 simulator"
+    H.title "PDP11 simulator (version 0.1.0.0)"
     H.body $ do
       H.h1 "Hello!"
       H.p "Powered by Servant, a type-safe web server written in Haskell."
@@ -93,8 +93,9 @@ resultPage (Code str) = H.docTypeHtml $ do
       H.pre ! A.style "background: #ccf;" $ H.toMarkup (repl (str ++ "\n"))
 
 repl :: String -> String
-repl str = l1 ++ "\n" ++ concatMap toBit (lines str)
+repl str' = l1 ++ "\n" ++ concatMap toBit (lines str)
   where
+    str = unlines . filter (not . null) . lines $ str'
     l1 :: String
     l1 = case runPDP11 str of
              Just result -> result
