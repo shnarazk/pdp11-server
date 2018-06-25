@@ -39,7 +39,7 @@ data Code = Code
 instance FromForm Code
 
 type API = "users" :> Get '[JSON] [User]
-           :<|> "code" :> ReqBody '[FormUrlEncoded] Code :> Post '[HTML] H.Html
+           :<|> "run" :> ReqBody '[FormUrlEncoded] Code :> Post '[HTML] H.Html
            :<|> Get '[HTML] H.Html -- the root path: see http://haskell-servant.readthedocs.io/en/stable/tutorial/ApiType.html
 
 startApp :: IO ()
@@ -70,12 +70,12 @@ homePage = H.docTypeHtml $ do
     H.body $ do
       H.h1 "Hello!"
       H.p "Powered by Servant, a type-safe web server written in Haskell."
-      H.p "YOUR ASSEMBLY CODE"
+      H.p "TYPE YOUR ASSEMBLY CODE"
       H.p $
-        H.form ! A.method "POST" ! A.action "code" $ do
-        H.textarea ! A.name "lines" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
-        H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
-      H.pre $ H.toMarkup (repl "MOV R1, R2\n")
+        H.form ! A.method "POST" ! A.action "run" $ do
+        H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
+        H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
+      H.pre ! A.style "background: #ccf;" $ H.toMarkup (repl "MOV R1, R2\n")
 
 resultPage :: Code -> H.Html
 resultPage (Code str) = H.docTypeHtml $ do
@@ -86,10 +86,11 @@ resultPage (Code str) = H.docTypeHtml $ do
       H.p "Powered by Servant, a type-safe web server written in Haskell."
       H.p "YOUR ASSEMBLY CODE"
       H.p $
-        H.form ! A.method "POST" ! A.action "code" $ do
-        H.textarea ! A.name "lines" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
-        H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
-      H.pre $ H.toMarkup (repl (str ++ "\n"))
+        H.form ! A.method "POST" ! A.action "run" $ do
+        H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ str
+        H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RERUN"
+      H.h1 $ "Rusult"
+      H.pre ! A.style "background: #ccf;" $ H.toMarkup (repl (str ++ "\n"))
 
 repl :: String -> String
 repl str = l1 ++ "\n" ++ concatMap toBit (lines str)
