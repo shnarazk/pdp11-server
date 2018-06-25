@@ -95,7 +95,7 @@ resultPage (Code str) = H.docTypeHtml $ do
 repl :: String -> String
 repl str' = l1 ++ "\n" ++ concatMap toBit (lines str)
   where
-    str = unlines . filter (not . null) . lines $ str'
+    str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str'
     l1 :: String
     l1 = case runPDP11 str of
              Just result -> result
