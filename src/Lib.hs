@@ -60,7 +60,7 @@ homePage = H.docTypeHtml $ do
       H.p $ H.toMarkup (repl "MOV R1, R2")
 
 repl :: String -> String
-repl str = concatMap toBit (lines str)
+repl str = l1 ++ "\n" ++ concatMap toBit (lines str)
   where
     l1 :: String
     l1 = case runPDP11 str of
