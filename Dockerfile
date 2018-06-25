@@ -2,7 +2,7 @@ FROM haskell:8.4.3
 
 RUN mkdir -p /app/user
 WORKDIR /app/user
-COPY stack.yaml *.cabal ./
+COPY . /app/user
 
 RUN export PATH=$(stack path --local-bin):$PATH
 RUN stack build --dependencies-only --no-nix

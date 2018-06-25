@@ -1,6 +1,8 @@
 build:
   stage: build
   script:
+    - git submodule init
+    - git submodule update
     - docker build -t pdp11-server .
 
 deploy heroku:
