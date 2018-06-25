@@ -82,9 +82,7 @@ resultPage (Code str) = H.docTypeHtml $ do
   H.head $ do
     H.title "PDP11 simulator"
     H.body $ do
-      H.h1 "Hello!"
-      H.p "Powered by Servant, a type-safe web server written in Haskell."
-      H.p "YOUR ASSEMBLY CODE"
+      H.h1 "YOUR ASSEMBLY CODE"
       H.p $
         H.form ! A.method "POST" ! A.action "run" $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ H.toMarkup str
@@ -109,5 +107,5 @@ repl str' = l1 ++ "\n" ++ concatMap toBit (lines str)
     printer l (i, b) = form (if i == 0 then l else "") ++ show b
     toBit :: String -> String
     toBit l = case assemble (l ++ "\n") of
-        Right [as] -> concatMap (printer l) (zip [0 ..] (toBitBlocks as))
+        Right [as] -> unlines $ map (printer l) (zip [0 ..] (toBitBlocks as))
         Left mes -> show mes
