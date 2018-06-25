@@ -53,11 +53,11 @@ users = [ User 1 "Isaac" "Newton"
 homePage :: H.Html
 homePage = H.docTypeHtml $ do
   H.head $ do
-    H.title "Live te serve"
+    H.title "PDP11 simulator"
     H.body $ do
       H.h1 "Hello!"
-      H.p "This is a type-safe web server"
-      H.p $ H.toMarkup (repl "MOV R1, R2\n")
+      H.p "Powered by Servant, a type-safe web server written in Haskell."
+      H.pre $ H.toMarkup (repl "MOV R1, R2\n")
 
 repl :: String -> String
 repl str = l1 ++ "\n" ++ concatMap toBit (lines str)
