@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE TypeOperators     #-}
@@ -8,15 +9,19 @@ module Lib
 
 import Data.Aeson
 import Data.Aeson.TH
+import GHC.Generics
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import Servant.HTML.Blaze
 import qualified Text.Blaze.Html5 as H
+import qualified Text.Blaze.Html5.Attributes as A
+import Text.Blaze.Html5 ((!))
 import System.ReadEnvVar (readEnvDef)
 import PDP11
 import Assembler
 import Simulator
+import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 data User = User
   { userId        :: Int
@@ -26,8 +31,16 @@ data User = User
 
 $(deriveJSON defaultOptions ''User)
 
+data Code = Code
+ {
+   program :: String
+ } deriving (Eq, Show, Generic)
+
+instance FromForm Code
+
 type API = "users" :> Get '[JSON] [User]
-        :<|> Get '[HTML] H.Html -- the root path: see http://haskell-servant.readthedocs.io/en/stable/tutorial/ApiType.html
+           :<|> "code" :> ReqBody '[FormUrlEncoded] Code :> Post '[HTML] H.Html
+           :<|> Get '[HTML] H.Html -- the root path: see http://haskell-servant.readthedocs.io/en/stable/tutorial/ApiType.html
 
 startApp :: IO ()
 startApp = do
@@ -42,7 +55,7 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return users :<|> return homePage
+server = return users :<|> (\d ->  return (resultPage d)) :<|> return homePage
 
 users :: [User]
 users = [ User 1 "Isaac" "Newton"
@@ -57,7 +70,26 @@ homePage = H.docTypeHtml $ do
     H.body $ do
       H.h1 "Hello!"
       H.p "Powered by Servant, a type-safe web server written in Haskell."
+      H.p "YOUR ASSEMBLY CODE"
+      H.p $
+        H.form ! A.method "POST" ! A.action "code" $ do
+        H.textarea ! A.name "lines" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
+        H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
       H.pre $ H.toMarkup (repl "MOV R1, R2\n")
+
+resultPage :: Code -> H.Html
+resultPage (Code str) = H.docTypeHtml $ do
+  H.head $ do
+    H.title "PDP11 simulator"
+    H.body $ do
+      H.h1 "Hello!"
+      H.p "Powered by Servant, a type-safe web server written in Haskell."
+      H.p "YOUR ASSEMBLY CODE"
+      H.p $
+        H.form ! A.method "POST" ! A.action "code" $ do
+        H.textarea ! A.name "lines" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
+        H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
+      H.pre $ H.toMarkup (repl (str ++ "\n"))
 
 repl :: String -> String
 repl str = l1 ++ "\n" ++ concatMap toBit (lines str)
@@ -77,4 +109,3 @@ repl str = l1 ++ "\n" ++ concatMap toBit (lines str)
     toBit l = case assemble (l ++ "\n") of
         Right [as] -> concatMap (printer l) (zip [0 ..] (toBitBlocks as))
         Left mes -> show mes
-
