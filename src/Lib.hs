@@ -57,7 +57,7 @@ homePage = H.docTypeHtml $ do
     H.body $ do
       H.h1 "Hello!"
       H.p "This is a type-safe web server"
-      H.p $ H.toMarkup (repl "MOV R1, R2")
+      H.p $ H.toMarkup (repl "MOV R1, R2\n")
 
 repl :: String -> String
 repl str = l1 ++ "\n" ++ concatMap toBit (lines str)
