@@ -87,7 +87,7 @@ resultPage (Code str) = H.docTypeHtml $ do
       H.p "YOUR ASSEMBLY CODE"
       H.p $
         H.form ! A.method "POST" ! A.action "run" $ do
-        H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ str
+        H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ H.toMarkup str
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RERUN"
       H.h1 $ "Rusult"
       H.pre ! A.style "background: #ccf;" $ H.toMarkup (repl (str ++ "\n"))
