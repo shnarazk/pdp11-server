@@ -76,7 +76,7 @@ homePage = H.docTypeHtml $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
       H.h1 $ "Rusult and Disassembled Code"
-      H.pre $ H.code ! A.style "font-family: Courier, monospace; background: #eef;" $ H.toMarkup (repl "MOV R1, R2\n")
+      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl "MOV R1, R2\n")
 
 resultPage :: Code -> H.Html
 resultPage (Code str) = H.docTypeHtml $ do
@@ -89,7 +89,7 @@ resultPage (Code str) = H.docTypeHtml $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ H.toMarkup str
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RERUN"
       H.h1 $ "Rusult and Disassembled Code"
-      H.pre $ H.code ! A.style "font-family: Courier, monospace; background: #eef;" $ H.toMarkup (repl (str ++ "\n"))
+      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl (str ++ "\n"))
 
 repl :: String -> String
 repl str' = l1 ++ "\n" ++ concatMap toBit (lines str)
