@@ -14,6 +14,9 @@ import Servant
 import Servant.HTML.Blaze
 import qualified Text.Blaze.Html5 as H
 import System.ReadEnvVar (readEnvDef)
+import PDP11
+import Assembler
+import Simulator
 
 data User = User
   { userId        :: Int
@@ -54,3 +57,24 @@ homePage = H.docTypeHtml $ do
     H.body $ do
       H.h1 "Hello!"
       H.p "This is a type-safe web server"
+      H.p $ H.toMarkup (repl "MOV R1, R2")
+
+repl :: String -> String
+repl str = concatMap toBit (lines str)
+  where
+    l1 :: String
+    l1 = case runPDP11 str of
+             Just result -> result
+             Nothing -> "wrong code"
+    form :: String -> String
+    form l = l' ++ replicate (32 - length l') ' '
+      where
+        l' :: String
+        l' = reverse . dropWhile (`elem` (" \t" :: String)) . reverse . dropWhile (`elem` (" \t" :: String)) $ l
+    -- printer :: String -> (Int, BitBlock) -> String
+    printer l (i, b) = form (if i == 0 then l else "") ++ show b
+    toBit :: String -> String
+    toBit l = case assemble (l ++ "\n") of
+        Right [as] -> concatMap (printer l) (zip [0 ..] (toBitBlocks as))
+        Left mes -> show mes
+
