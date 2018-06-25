@@ -82,13 +82,13 @@ resultPage (Code str) = H.docTypeHtml $ do
   H.head $ do
     H.title "PDP11 simulator"
     H.body $ do
-      H.h1 "YOUR ASSEMBLY CODE"
+      H.h1 "Your Assembly Code"
       H.p $
         H.form ! A.method "POST" ! A.action "run" $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ H.toMarkup str
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RERUN"
-      H.h1 $ "Rusult"
-      H.pre ! A.style "background: #ccf;" $ H.toMarkup (repl (str ++ "\n"))
+      H.h1 $ "Rusult and Disassembled Code"
+      H.pre ! A.style "font-family: monospace; background: #eef;" $ H.toMarkup (repl (str ++ "\n"))
 
 repl :: String -> String
 repl str' = l1 ++ "\n" ++ concatMap toBit (lines str)
