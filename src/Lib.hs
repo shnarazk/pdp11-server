@@ -96,12 +96,16 @@ resultPage (Code str) = H.docTypeHtml $ do
       case repl (shaping str) of
         Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
         Right lst -> do
-          H.table $
+          H.table $ do
+            H.tr $ do
+              H.th "Opcode"
+              H.th ! A.colspan "10" ! A.style "text-align: center;" $ "Memory 9 - 0"
+              H.th ! A.colspan "8"  ! A.style "text-align: center;" $ "Register 7 - 0"
             mapM_ (\(ins, (ms, rs)) ->
                       H.tr $ do
                         H.td ! A.style "font-family: monospace;" $ H.toMarkup ins
-                        mapM_ (\m -> H.td (H.toMarkup (show m))) (reverse ms)
-                        mapM_ (\r -> H.td (H.toMarkup (show r))) (reverse rs)
+                        mapM_ (\m -> H.td ! A.style "text-align: right;backgroud: #efe;" $ (H.toMarkup (show m))) (reverse ms)
+                        mapM_ (\r -> H.td ! A.style "text-align: right;backgroud: #eef;" $ (H.toMarkup (show r))) (reverse rs)
                   ) lst
 
 repl_ :: String -> String
@@ -127,4 +131,5 @@ shaping :: String -> String
 shaping str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str
 
 repl :: String -> Either String [(String, ([Int], [Int]))]
-repl str = zipWith (\ins m -> (ins, PDP.dump m)) (lines str) <$> PS.runSimulator' <$> PA.assemble str
+repl str = (initial :) <$> zipWith (\ins m -> (ins, PDP.dump m)) (lines str) <$> PS.runSimulator' <$> PA.assemble str
+  where initial = ("----", PDP.dump PS.initialMachine)
