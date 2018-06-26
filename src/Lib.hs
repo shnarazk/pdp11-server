@@ -97,7 +97,12 @@ resultPage (Code str) = H.docTypeHtml $ do
         Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
         Right lst -> do
           H.table $
-            mapM_ (\l -> H.tr $ mapM_ (\m -> H.td (H.toMarkup (show m))) l) lst
+            mapM_ (\(ins, (ms, rs)) ->
+                      H.tr $ do
+                        H.td ! A.style "font-family: monospace;" $ H.toMarkup ins
+                        mapM_ (\m -> H.td (H.toMarkup (show m))) (reverse ms)
+                        mapM_ (\r -> H.td (H.toMarkup (show r))) (reverse rs)
+                  ) lst
 
 repl_ :: String -> String
 repl_ str = l1 ++ "\n" ++ concatMap toBit (lines str)
