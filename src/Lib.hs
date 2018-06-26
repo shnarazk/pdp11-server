@@ -84,6 +84,7 @@ homePage = H.docTypeHtml $ do
 resultPage :: Code -> H.Html
 resultPage (Code str) = H.docTypeHtml $ do
   H.head $ do
+    H.style ! A.type_ "text/css" $ "<- td {text-align:right;border:1pt;border-collapse: collapse;font-family: monospace;} ->"
     H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
     H.body $ do
       H.h1 "Your Assembly Code"
@@ -102,10 +103,10 @@ resultPage (Code str) = H.docTypeHtml $ do
               H.th ! A.colspan "10" ! A.style "text-align: center;" $ "Memory 9 - 0"
               H.th ! A.colspan "8"  ! A.style "text-align: center;" $ "Register 7 - 0"
             mapM_ (\(ins, (ms, rs)) ->
-                      H.tr $ do
-                        H.td ! A.style "font-family: monospace;" $ H.toMarkup ins
-                        mapM_ (\m -> H.td ! A.style "text-align: right;backgroud: #efe;" $ (H.toMarkup (show m))) (reverse ms)
-                        mapM_ (\r -> H.td ! A.style "text-align: right;backgroud: #eef;" $ (H.toMarkup (show r))) (reverse rs)
+                      H.tr ! A.style "border: 1pt;" $ do
+                        H.td $ H.toMarkup ins
+                        mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse ms)
+                        mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse rs)
                   ) lst
 
 repl_ :: String -> String
