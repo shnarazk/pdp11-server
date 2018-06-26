@@ -88,7 +88,7 @@ resultPage (Code str) = H.docTypeHtml $ do
 \table,tr,td,th {border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
 \th {text-align:center;}\n\
 \td {text-align:right;font-family:monospace;width:32px;padding:2px;}\n\
-\.opcode {width:120px;}\n\
+\.opcode {text-align:left;width:100px;padding-left:4px;}\n\
 \-->"
     H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
     H.body $ do
@@ -97,7 +97,7 @@ resultPage (Code str) = H.docTypeHtml $ do
         H.form ! A.method "POST" ! A.action "run" $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ H.toMarkup str
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RERUN"
-      H.h1 $ "Rusult and Disassembled Code"
+      H.h1 $ "Rusult"
 --      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl (str ++ "\n"))
       case repl (shaping str) of
         Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
@@ -113,6 +113,7 @@ resultPage (Code str) = H.docTypeHtml $ do
                         mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse ms)
                         mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse rs)
                   ) lst
+      H.h1 "Disassembled Code (in future)"
 
 repl_ :: String -> String
 repl_ str = l1 ++ "\n" ++ concatMap toBit (lines str)
