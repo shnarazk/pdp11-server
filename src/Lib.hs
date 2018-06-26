@@ -79,7 +79,7 @@ homePage = H.docTypeHtml $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
       H.h1 $ "Rusult and Disassembled Code"
-      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl_ "MOV R1, R2\n")
+      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl_ (shaping "MOV R1, R2\n"))
 
 resultPage :: Code -> H.Html
 resultPage (Code str) = H.docTypeHtml $ do
@@ -93,16 +93,15 @@ resultPage (Code str) = H.docTypeHtml $ do
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RERUN"
       H.h1 $ "Rusult and Disassembled Code"
 --      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl (str ++ "\n"))
-      case repl (str ++ "\n") of
+      case repl (shaping str) of
         Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
         Right lst -> do
           H.table $
             mapM_ (\l -> H.tr $ mapM_ (\m -> H.td (H.toMarkup (show m))) l) lst
 
 repl_ :: String -> String
-repl_ str' = l1 ++ "\n" ++ concatMap toBit (lines str)
+repl_ str = l1 ++ "\n" ++ concatMap toBit (lines str)
   where
-    str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str'
     l1 :: String
     l1 = case PS.runPDP11 str of
              Just result -> result
@@ -119,5 +118,8 @@ repl_ str' = l1 ++ "\n" ++ concatMap toBit (lines str)
         Right [as] -> unlines $ map (printer l) (zip [0 ..] (PDP.toBitBlocks as))
         Left mes -> show mes
 
-repl :: String -> Either String [([Int], [Int])]
-repl str = map PDP.dump <$> PS.runSimulator' <$> PA.assemble str
+shaping :: String -> String
+shaping str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str
+
+repl :: String -> Either String [(String, ([Int], [Int]))]
+repl str = zipWith (\ins m -> (ins, PDP.dump m)) (lines str) <$> PS.runSimulator' <$> PA.assemble str
