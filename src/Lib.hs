@@ -137,4 +137,4 @@ shaping :: String -> String
 shaping str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str
 
 repl :: String -> Either String [(String, ([Int], [Int]))]
-repl str = zipWith (\ins m -> ("-----" : ins, PDP.dump m)) (lines str) <$> PS.runSimulator' <$> PA.assemble str
+repl str = zipWith (\ins m -> (ins, PDP.dump m)) ("-----" : lines str) <$> PS.runSimulator' <$> PA.assemble str
