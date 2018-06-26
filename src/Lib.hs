@@ -18,10 +18,13 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Html5 ((!))
 import System.ReadEnvVar (readEnvDef)
-import PDP11
-import Assembler
-import Simulator
+import qualified PDP11 as PDP
+import qualified Assembler as PA
+import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
+
+version :: String
+version = "0.1.0.1"
 
 data User = User
   { userId        :: Int
@@ -66,7 +69,7 @@ users = [ User 1 "Isaac" "Newton"
 homePage :: H.Html
 homePage = H.docTypeHtml $ do
   H.head $ do
-    H.title "PDP11 simulator (version 0.1.0.0)"
+    H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
     H.body $ do
       H.h1 "Hello!"
       H.p "Powered by Servant, a type-safe web server written in Haskell."
@@ -76,12 +79,12 @@ homePage = H.docTypeHtml $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
       H.h1 $ "Rusult and Disassembled Code"
-      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl "MOV R1, R2\n")
+      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl_ "MOV R1, R2\n")
 
 resultPage :: Code -> H.Html
 resultPage (Code str) = H.docTypeHtml $ do
   H.head $ do
-    H.title "PDP11 simulator"
+    H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
     H.body $ do
       H.h1 "Your Assembly Code"
       H.p $
@@ -89,14 +92,19 @@ resultPage (Code str) = H.docTypeHtml $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ H.toMarkup str
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RERUN"
       H.h1 $ "Rusult and Disassembled Code"
-      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl (str ++ "\n"))
+--      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl (str ++ "\n"))
+      case repl (str ++ "\n") of
+        Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
+        Right lst -> do
+          H.table $
+            mapM_ (\l -> H.tr $ mapM_ (\m -> H.td (H.toMarkup (show m))) l) lst
 
-repl :: String -> String
-repl str' = l1 ++ "\n" ++ concatMap toBit (lines str)
+repl_ :: String -> String
+repl_ str' = l1 ++ "\n" ++ concatMap toBit (lines str)
   where
     str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str'
     l1 :: String
-    l1 = case runPDP11 str of
+    l1 = case PS.runPDP11 str of
              Just result -> result
              Nothing -> "wrong code"
     form :: String -> String
@@ -107,6 +115,9 @@ repl str' = l1 ++ "\n" ++ concatMap toBit (lines str)
     -- printer :: String -> (Int, BitBlock) -> String
     printer l (i, b) = form (if i == 0 then l else "") ++ show b
     toBit :: String -> String
-    toBit l = case assemble (l ++ "\n") of
-        Right [as] -> unlines $ map (printer l) (zip [0 ..] (toBitBlocks as))
+    toBit l = case PA.assemble (l ++ "\n") of
+        Right [as] -> unlines $ map (printer l) (zip [0 ..] (PDP.toBitBlocks as))
         Left mes -> show mes
+
+repl :: String -> Either String [([Int], [Int])]
+repl str = map PDP.dump <$> PS.runSimulator' <$> PA.assemble str
