@@ -84,7 +84,12 @@ homePage = H.docTypeHtml $ do
 resultPage :: Code -> H.Html
 resultPage (Code str) = H.docTypeHtml $ do
   H.head $ do
-    H.style ! A.type_ "text/css" $ "<!-- \ntable,td,td,th {text-align:right;border:1px black solid;border-collapse:collapse;font-family:monospace;} \n-->"
+    H.style ! A.type_ "text/css" $ "<!-- \n\
+\table,tr,td,th {text-align:right;border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
+\th {text-align:center;}\n\
+\td {text-align:right;font-family:monospace;width:40px;}\n\
+\#opcode {width:100px;}\n\
+\-->"
     H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
     H.body $ do
       H.h1 "Your Assembly Code"
@@ -100,11 +105,11 @@ resultPage (Code str) = H.docTypeHtml $ do
           H.table $ do
             H.tr $ do
               H.th "Opcode"
-              H.th ! A.colspan "12" ! A.style "text-align: center;" $ "Memory 9 - 0"
-              H.th ! A.colspan "8"  ! A.style "text-align: center;" $ "Register 7 - 0"
+              H.th ! A.colspan "12" ! A.style "background:#efe;" $ "Memory 11 - 0"
+              H.th ! A.colspan "8"  ! A.style "background:#eef;" $ "Register 7 - 0"
             mapM_ (\(ins, (ms, rs)) ->
                       H.tr ! A.style "border: 1pt;" $ do
-                        H.td $ H.toMarkup ins
+                        H.td ! A.class_ "opcode" $ H.toMarkup ins
                         mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse ms)
                         mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse rs)
                   ) lst
