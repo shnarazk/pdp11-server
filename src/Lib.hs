@@ -85,10 +85,10 @@ resultPage :: Code -> H.Html
 resultPage (Code str) = H.docTypeHtml $ do
   H.head $ do
     H.style ! A.type_ "text/css" $ "<!-- \n\
-\table,tr,td,th {text-align:right;border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
+\table,tr,td,th {border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
 \th {text-align:center;}\n\
-\td {text-align:right;font-family:monospace;width:32px;}\n\
-\#opcode {width:160px;}\n\
+\td {text-align:right;font-family:monospace;width:32px;padding:2px;}\n\
+\.opcode {width:120px;}\n\
 \-->"
     H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
     H.body $ do
