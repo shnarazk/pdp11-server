@@ -24,7 +24,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.1.0.1"
+version = "0.1.1.0"
 
 data User = User
   { userId        :: Int
@@ -76,7 +76,7 @@ homePage = H.docTypeHtml $ do
       H.p "TYPE YOUR ASSEMBLY CODE"
       H.p $
         H.form ! A.method "POST" ! A.action "run" $ do
-        H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ "MOV R1, R2"
+        H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ "MOV R1, R2"
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
       H.h1 $ "Rusult and Disassembled Code"
       H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl_ (shaping "MOV R1, R2\n"))
@@ -87,15 +87,15 @@ resultPage (Code str) = H.docTypeHtml $ do
     H.style ! A.type_ "text/css" $ "<!-- \n\
 \table,tr,td,th {text-align:right;border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
 \th {text-align:center;}\n\
-\td {text-align:right;font-family:monospace;width:40px;}\n\
-\#opcode {width:100px;}\n\
+\td {text-align:right;font-family:monospace;width:32px;}\n\
+\#opcode {width:160px;}\n\
 \-->"
     H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
     H.body $ do
       H.h1 "Your Assembly Code"
       H.p $
         H.form ! A.method "POST" ! A.action "run" $ do
-        H.p $ H.textarea ! A.name "program" ! A.cols "50" ! A.rows "10" $ H.toMarkup str
+        H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ H.toMarkup str
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RERUN"
       H.h1 $ "Rusult and Disassembled Code"
 --      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl (str ++ "\n"))
@@ -137,5 +137,4 @@ shaping :: String -> String
 shaping str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str
 
 repl :: String -> Either String [(String, ([Int], [Int]))]
-repl str = (initial :) <$> zipWith (\ins m -> (ins, PDP.dump m)) (lines str) <$> PS.runSimulator' <$> PA.assemble str
-  where initial = ("----", PDP.dump PS.initialMachine)
+repl str = zipWith (\ins m -> ("-----" : ins, PDP.dump m)) (lines str) <$> PS.runSimulator' <$> PA.assemble str
