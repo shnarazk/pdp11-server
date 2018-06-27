@@ -104,14 +104,17 @@ resultPage (Code str) = H.docTypeHtml $ do
         Right lst -> do
           H.table $ do
             H.tr $ do
-              H.th "Opcode"
+              H.th ! A.style "rowspan:2;" $ "Opcode"
               H.th ! A.colspan "12" ! A.style "background:#efe;" $ "Memory 11 - 0"
               H.th ! A.colspan "8"  ! A.style "background:#eef;" $ "Register 7 - 0"
+            H.tr $ do
+              mapM_ (\m -> H.th ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse [0 .. 11])
+              mapM_ (\r -> H.th ! A.style "background:#eef;" $ (H.toMarkup ("R" ++ show r))) (reverse [0 .. 7])
             mapM_ (\(ins, (ms, rs)) ->
-                      H.tr ! A.style "border: 1pt;" $ do
-                        H.td ! A.class_ "opcode" $ H.toMarkup ins
-                        mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse ms)
-                        mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse rs)
+                     H.tr ! A.style "border: 1pt;" $ do
+                      H.td ! A.class_ "opcode" $ H.toMarkup ins
+                      mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse ms)
+                      mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse rs)
                   ) lst
       H.h1 "Disassembled Code (in future)"
 
