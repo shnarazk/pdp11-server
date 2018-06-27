@@ -24,7 +24,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.1.2.0"
+version = "0.2.1.0"
 
 data User = User
   { userId        :: Int
@@ -120,8 +120,10 @@ resultPage (Code str) = H.docTypeHtml $ do
       case asBits (shaping str) of
         Left str -> return ()
         Right l -> do
-          H.h1 "Binary Codes"
+          H.h1 "Binary Code"
           H.pre . H.code $ H.toMarkup l
+      H.hr
+      H.p ! A.style "text-align: right;" $ "By nrzk, nagasaki-u"
 
 repl_ :: String -> String
 repl_ str = l1 ++ "\n" ++ concatMap toBit (lines str)
