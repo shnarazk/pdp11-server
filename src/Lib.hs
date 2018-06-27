@@ -89,6 +89,7 @@ resultPage (Code str) = H.docTypeHtml $ do
 \th {text-align:center;}\n\
 \td {text-align:right;font-family:monospace;width:32px;padding:2px;}\n\
 \.opcode {text-align:left;width:100px;padding-left:4px;}\n\
+\pre code {font-family:monospace;}\n\
 \-->"
     H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
     H.body $ do
@@ -148,4 +149,4 @@ repl :: String -> Either String [(String, ([Int], [Int]))]
 repl str = zipWith (\ins m -> (ins, PDP.dump m)) ("-----" : lines str) <$> PS.runSimulator' <$> PA.assemble str
 
 asBits :: String -> Either String String
-asBits str = (unlines . map (show . PDP.toBitBlocks)) <$> PA.assemble str
+asBits str = (unlines . map show . concatMap PDP.toBitBlocks) <$> PA.assemble str
