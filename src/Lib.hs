@@ -24,7 +24,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.1.1.0"
+version = "0.1.2.0"
 
 data User = User
   { userId        :: Int
@@ -116,7 +116,11 @@ resultPage (Code str) = H.docTypeHtml $ do
                       mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse ms)
                       mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse rs)
                   ) lst
-      H.h1 "Disassembled Code (in future)"
+      case asBits (shaping str) of
+        Left str -> return ()
+        Right l -> do
+          H.h1 "Binary Codes"
+          H.pre . H.code $ H.toMarkup l
 
 repl_ :: String -> String
 repl_ str = l1 ++ "\n" ++ concatMap toBit (lines str)
@@ -142,3 +146,6 @@ shaping str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ s
 
 repl :: String -> Either String [(String, ([Int], [Int]))]
 repl str = zipWith (\ins m -> (ins, PDP.dump m)) ("-----" : lines str) <$> PS.runSimulator' <$> PA.assemble str
+
+asBits :: String -> Either String String
+asBits str = (unlines . map (show . PDP.toBitBlocks)) <$> PA.assemble str
