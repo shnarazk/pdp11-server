@@ -114,8 +114,8 @@ resultPage (Code str) = H.docTypeHtml $ do
             mapM_ (\(ins, (ms, rs)) ->
                      H.tr ! A.style "border: 1pt;" $ do
                       H.td ! A.class_ "opcode" $ H.toMarkup ins
-                      mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse ms)
-                      mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse rs)
+                      mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse (take 12 ms))
+                      mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse (take 8 rs))
                   ) lst
       case asBits (shaping str) of
         Left str -> return ()
