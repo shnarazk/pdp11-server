@@ -24,7 +24,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.2.1.0"
+version = "0.2.2.0"
 
 data User = User
   { userId        :: Int
@@ -78,8 +78,8 @@ homePage = H.docTypeHtml $ do
         H.form ! A.method "POST" ! A.action "run" $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ "MOV R1, R2"
         H.p $ H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
-      H.h1 $ "Rusult and Disassembled Code"
-      H.pre ! A.style "background: #eef;" $ H.code ! A.style "font-family: Courier, monospace;" $ H.toMarkup (repl_ (shaping "MOV R1, R2\n"))
+      H.hr
+      H.p ! A.style "text-align: right;" $ "By nrzk, nagasaki-u"
 
 resultPage :: Code -> H.Html
 resultPage (Code str) = H.docTypeHtml $ do
@@ -124,25 +124,6 @@ resultPage (Code str) = H.docTypeHtml $ do
           H.pre . H.code $ H.toMarkup l
       H.hr
       H.p ! A.style "text-align: right;" $ "By nrzk, nagasaki-u"
-
-repl_ :: String -> String
-repl_ str = l1 ++ "\n" ++ concatMap toBit (lines str)
-  where
-    l1 :: String
-    l1 = case PS.runPDP11 str of
-             Just result -> result
-             Nothing -> "wrong code"
-    form :: String -> String
-    form l = l' ++ replicate (32 - length l') ' '
-      where
-        l' :: String
-        l' = reverse . dropWhile (`elem` (" \t" :: String)) . reverse . dropWhile (`elem` (" \t" :: String)) $ l
-    -- printer :: String -> (Int, BitBlock) -> String
-    printer l (i, b) = form (if i == 0 then l else "") ++ show b
-    toBit :: String -> String
-    toBit l = case PA.assemble (l ++ "\n") of
-        Right [as] -> unlines $ map (printer l) (zip [0 ..] (PDP.toBitBlocks as))
-        Left mes -> show mes
 
 shaping :: String -> String
 shaping str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str
