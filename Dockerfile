@@ -4,7 +4,7 @@ RUN mkdir -p /app/user
 RUN mkdir -p /app/user/PDP11
 WORKDIR /app/user
 COPY PDP11 ./PDP11
-COPY stack.yaml pdp11-server.cabal ./
+COPY *.yaml ./
 RUN export PATH=$(stack path --local-bin --no-nix):$PATH
 RUN stack build --dependencies-only --no-nix
 
