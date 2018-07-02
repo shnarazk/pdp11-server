@@ -80,7 +80,7 @@ resultPage (Code str rnd) = H.docTypeHtml $ do
 \table,tr,td,th {border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
 \th {text-align:center;}\n\
 \td {text-align:right;font-family:monospace;width:26px;padding:2px;}\n\
-\.opcode {text-align:left;width:90px;padding-left:4px;}\n\
+\.opcode {text-align:left;width:110px;padding-left:4px;}\n\
 \pre code {font-family:monospace;}\n\
 \-->"
     H.title "A PDP11 simulator"
