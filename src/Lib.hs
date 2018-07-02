@@ -25,7 +25,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.4.0.0"
+version = "0.4.1.0"
 
 data Code = Code
  {
