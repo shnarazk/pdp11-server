@@ -121,7 +121,8 @@ resultPage (Code str) = H.docTypeHtml $ do
       H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
 
 shaping :: String -> String
-shaping str = unlines . map (filter ('\r' /=)) . filter (not . null) . lines $ str
+shaping str = unlines . filter (not . null) . map trim . lines $ str
+  where trim = reverse . dropWhile (`elem` [' ', '\t', '\r']) . reverse . dropWhile (`elem` [' ', '\t'])
 
 repl :: String -> Either String [([Int], [Int], [Int], Int, PDP.ASM)]
 repl str = map PDP.dump . (PDP.initialMachine :) <$> PS.runSimulator' <$> PA.assemble str
