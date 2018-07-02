@@ -1,0 +1,51 @@
+name:                pdp11-server
+version:             0.4.1.0
+synopsis:            A web interface of PDP11
+description:         A web interface of PDP11
+homepage:            https://gitlab.com/cisl407/classroom/pdp11-server
+github:              shnarazk
+license:             GPL-3
+author:              Shuji Narazaki
+maintainer:          narazakilabortarory@gmail.com
+copyright:           2018 Shuji Narazaki
+category:            network
+extra-source-files:
+- README.md
+
+dependencies:
+  - base >= 4.7 && < 5
+  - aeson
+  - blaze-html
+  - http-api-data
+  - read-env-var
+  - servant-blaze
+  - servant-server
+  - wai
+  - warp
+  - PDP11
+
+library:
+  source-dirs:
+    - src
+    - PDP11
+  exposed-modules:
+    - Lib
+  other-modules: []
+
+executables:
+  pdp11-server:
+    source-dirs:     app
+    main:            Main.hs
+    ghc-options:     -j -threaded -rtsopts -with-rtsopts=-N
+    dependencies:
+      - base
+      - pdp11-server
+
+tests:
+  spec:
+    verbatim:
+      type:          exitcode-stdio-1.0
+    main:         Spec.hs
+    source-dirs:     test
+    ghc-options:     -threaded -rtsopts -with-rtsopts=-N
+
