@@ -121,7 +121,7 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
               H.table $ do
                 H.tr $ do
                   H.th ! A.rowspan "2" $ "PC"
-                  H.th ! A.rowspan "2" $ "Opcode"
+                  H.th ! A.rowspan "2" $ "Instruction"
                   H.th ! A.colspan "12" ! A.style "background:#efe;" $ "Memory 11 - 0"
                   H.th ! A.colspan "8"  ! A.style "background:#eef;" $ "Register 7 - 0"
                   H.th ! A.colspan "4"  ! A.style "background:#fee;" $ "PSW"
