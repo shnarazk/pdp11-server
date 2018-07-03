@@ -79,6 +79,7 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
   H.head $ do
     H.style ! A.type_ "text/css" $ "<!-- \n\
 \table,tr,td,th {border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
+\textarea {margin:8px;padding:8px;}\n\
 \th {text-align:center;}\n\
 \td {text-align:right;font-family:monospace;width:26px;padding:2px;}\n\
 \.opcode {text-align:left;width:110px;padding-left:4px;}\n\
