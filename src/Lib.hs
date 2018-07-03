@@ -78,6 +78,8 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
   let rnd = randomize' == "randomize on"
   H.head $ do
     H.style ! A.type_ "text/css" $ "<!-- \n\
+\body {background-image:url(https://1.bp.blogspot.com/-4VU3tl2Esrg/WGnPOsl5IRI/AAAAAAABA1s/ep6WFxjyMWo9FqTMqhlgukBC18Lww4ZHACLcB/s800/computer_supercomputer_red.png) right top no-repeat;\n\
+\      background-size:200px;}\n\
 \table,tr,td,th {border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
 \textarea {margin:8px;padding:8px;}\n\
 \th {text-align:center;}\n\
@@ -140,7 +142,7 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
                       ) lst
                 when (64 <= length lst) $
                   H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $ "--- Your time slice expires. ---"
-      H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
+      H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.;the bg image is by いらすとや)")
 
 shaping :: String -> String
 shaping str = unlines . filter (not . null) . map trim . lines $ str
