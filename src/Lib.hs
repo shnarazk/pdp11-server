@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.5.1.0"
+version = "0.5.2.0"
 
 data Code = Code
  {
@@ -152,7 +152,15 @@ asBits str = (unlines . map show . concatMap PDP.toBitBlocks) <$> PA.assemble st
 makeMachine :: Bool -> IO PDP.Machine
 makeMachine False = return PDP.initialMachine
 makeMachine True = do
-  i <- getStdRandom (randomR (0, 111))
-  j <- getStdRandom (randomR (0, 111))
-  k <- getStdRandom (randomR (0, 111))
-  return $ PDP.makePDP11 [0,0,mod i 256, div i 256, mod j 256, div j 256, mod k 256, div k 256, 1, 1] [0,0,0,0,0,0,0,100]
+  r1 <- getStdRandom (randomR (0, 128))
+  r2 <- getStdRandom (randomR (0, 128))
+  r3 <- getStdRandom (randomR (0, 256))
+  r4 <- getStdRandom (randomR (0, 300))
+  r5 <- getStdRandom (randomR (0, 2000))
+  return $ PDP.makePDP11 [ 0, 0
+                         , mod r1 256, div r1 256
+                         , mod r2 256, div r2 256
+                         , mod r3 256, div r3 256
+                         , mod r4 256, div r4 256
+                         , mod r5 256, div r5 256
+                         ] [0,0,0,0,0,0,0,100]
