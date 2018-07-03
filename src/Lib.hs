@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.6.0.0"
+version = "0.6.1.0"
 
 data Code = Code
  {
@@ -99,14 +99,14 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
 \textarea {margin:8px;padding:8px;}\n\
 \th {text-align:center;}\n\
 \td {text-align:right;font-family:monospace;width:26px;padding:2px;}\n\
-\.opcode {text-align:left;width:110px;padding-left:4px;}\n\
+\.opcode {text-align:left;width:140px;padding-left:4px;}\n\
 \pre code {font-family:monospace;}\n\
 \-->"
     H.title "A PDP11 simulator"
   H.body $ do
     H.h1 $ do
       H.i ! A.class_ "fas fa-keyboard" ! A.style "padding-right:4pt;" $ " "
-      H.span "Assembly Code"
+      H.toMarkup $ "Assembly Code (ver. " ++ PA.version ++ ")"
     H.p $ do
       H.form ! A.method "POST" ! A.action "run" $ do
         H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ H.toMarkup str
