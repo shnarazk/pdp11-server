@@ -78,7 +78,7 @@ homePage = H.docTypeHtml $ do
       H.span "Assembly Code"
     H.p $
       H.form ! A.method "POST" ! A.action "run" $ do
-      H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ "MOV #6, R0\nMOV #2018, -(R0)\nMOV #7, -(R0)\nMOV #10, -(R0)\nINC @R0\n"
+      H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ "SUB R0, R0\nMOV #10, (R0)+\nMOV #7, (R0)+\nMOV #2018, (R0)+\nJMP #102\n"
       H.p $ do
         H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" ! A.style "margin-left: 180px;" $ do
           H.i ! A.class_ "fas fa-play" ! A.style "padding-right:4pt;" $ " "
