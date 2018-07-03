@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.5.2.0"
+version = "0.5.3.0"
 
 data Code = Code
  {
@@ -132,14 +132,14 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
                   mapM_ (\r -> H.th ! A.style "background:#fee;" $ r) ["N", "Z", "V", "C"]
                 mapM_ (\(ms, rs, psw, addr, asm) ->
                          H.tr ! A.style "border: 1pt;" $ do
-                          H.td ! A.class_ "PC" $ H.toMarkup (show addr)
-                          H.td ! A.class_ "opcode" $ H.toMarkup (show asm)
+                          H.td ! A.class_ "PC" $ H.toMarkup (if addr == -1 then "" else show addr)
+                          H.td ! A.class_ "opcode" $ H.toMarkup (if addr == -1 then "" else show asm)
                           mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse (take 12 ms))
                           mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse (take 8 rs))
                           mapM_ (\f -> H.td ! A.style "background:#fee;" $ (H.toMarkup (show f))) psw
                       ) lst
                 when (64 <= length lst) $
-                  H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-aling:center;" $ "--- Your time slice expires. ---"
+                  H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $ "--- Your time slice expires. ---"
       H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
 
 shaping :: String -> String
