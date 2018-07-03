@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.5.3.0"
+version = "0.6.0.0"
 
 data Code = Code
  {
@@ -174,7 +174,10 @@ repl :: PDP.Machine -> String -> Either String [([Int], [Int], [Int], Int, PDP.A
 repl machine str = map PDP.dump <$> PS.runSimulator 64 machine <$> PA.assemble str
 
 asBits :: String -> Either String String
-asBits str = (unlines . map show . concatMap PDP.toBitBlocks) <$> PA.assemble str
+asBits str = (unlines . zipWith merge [pc, pc + 2 ..] . concatMap PDP.toBitBlocks) <$> PA.assemble str
+  where
+    pc = (PDP._pc PDP.initialMachine)
+    merge addr code = "  " ++ show addr ++ "        " ++ show code
 
 makeMachine :: Bool -> IO PDP.Machine
 makeMachine False = return PDP.initialMachine
