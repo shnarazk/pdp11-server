@@ -87,7 +87,7 @@ homePage = H.docTypeHtml $ do
     H.hr
     H.p ! A.style "text-align: right" $ "powered by Servant, a type-safe web server written in Haskell."
     H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
-
+    H.p ! A.style "text-align: right;" $ H.toMarkup ("The BG image is by いらすとや".)
 
 resultPage :: Code -> H.Html
 resultPage (Code str randomize') = H.docTypeHtml $ do
