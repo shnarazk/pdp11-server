@@ -60,25 +60,9 @@ homePage :: H.Html
 homePage = H.docTypeHtml $ do
   H.head $ do
     H.title . H.toHtml $ "PDP11 simulator (version " ++ version ++ ")"
-    H.body $ do
-      H.h1 "Welcome to a PDP11 simulator"
-      H.p "Fill you code in"
-      H.p $
-        H.form ! A.method "POST" ! A.action "run" $ do
-        H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ "MOV R1, R2"
-        H.p $ do
-          H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" $ "RUN"
-          H.input ! A.type_ "hidden" ! A.name "randomize" ! A.value "RandomizeOff"
-      H.hr
-      H.p ! A.style "text-align: right" $ "powered by Servant, a type-safe web server written in Haskell."
-      H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
-
-resultPage :: Code -> H.Html
-resultPage (Code str randomize') = H.docTypeHtml $ do
-  let rnd = randomize' == "randomize on"
-  H.head $ do
+    H.link ! A.rel "stylesheet" ! A.href "https://use.fontawesome.com/releases/v5.1.0/css/all.css"
     H.style ! A.type_ "text/css" $ "<!-- \n\
-\body {background-image:url(https://1.bp.blogspot.com/-4VU3tl2Esrg/WGnPOsl5IRI/AAAAAAABA1s/ep6WFxjyMWo9FqTMqhlgukBC18Lww4ZHACLcB/s800/computer_supercomputer_red.png) right top no-repeat;\n\
+\html {background:url(https://1.bp.blogspot.com/-4VU3tl2Esrg/WGnPOsl5IRI/AAAAAAABA1s/ep6WFxjyMWo9FqTMqhlgukBC18Lww4ZHACLcB/s800/computer_supercomputer_red.png) right top fixed no-repeat;\n\
 \      background-size:200px;}\n\
 \table,tr,td,th {border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
 \textarea {margin:8px;padding:8px;}\n\
@@ -87,62 +71,100 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
 \.opcode {text-align:left;width:110px;padding-left:4px;}\n\
 \pre code {font-family:monospace;}\n\
 \-->"
-    H.title "A PDP11 simulator"
-    H.body $ do
-      H.h1 "Assembly Code"
+  H.body $ do
+    H.h1 "Welcome to a PDP11 simulator"
+    H.h1 $ do
+      H.i ! A.class_ "fas fa-keyboard" ! A.style "padding-right:4pt;" $ " "
+      H.span "Assembly Code"
+    H.p $
+      H.form ! A.method "POST" ! A.action "run" $ do
+      H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ "MOV R1, R2"
       H.p $ do
-        H.form ! A.method "POST" ! A.action "run" $ do
-          H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ H.toMarkup str
-          H.p $ do
+        H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" ! A.style "margin-left: 180px;" $ do
+          H.i ! A.class_ "fas fa-play" ! A.style "padding-right:4pt;" $ " "
+          H.span "RUN"
+        H.input ! A.type_ "hidden" ! A.name "randomize" ! A.value "RandomizeOff"
+    H.hr
+    H.p ! A.style "text-align: right" $ "powered by Servant, a type-safe web server written in Haskell."
+    H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
 
-            H.select ! A.id "randomize" ! A.name "randomize" $ do
-              H.optgroup ! A.label "Memory Randomization" $ do
-                if rnd
-                  then do
-                    H.option ! A.selected  "randomize on" $   "randomize on"
-                    H.option "randomize off"
-                  else do
-                    H.option "randomize on"
-                    H.option ! A.selected "randomize off" $ "randomize off"
-            H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" ! A.style "margin-left: 120px;" $ "UPDATE"
-      let prg = shaping str
-      if null prg
-        then do
-          H.p "You sent an empty program."
-          H.a ! A.href "/" $ "RESET"
-        else do
-          case asBits prg of
-            Left str -> return ()
-            Right l -> do
-              H.h1 $ H.toMarkup $ "Binary Representation (ver. " ++ PDP.version ++ ")"
-              H.pre ! A.style "width:300px;background:#f8f8f8;border:1px solid #777;margin:8px;padding:8px;" $ H.code $ H.toMarkup l
-          H.h1 $ H.toMarkup $ "Execution Trace (ver. " ++ PS.version ++ ")"
-          let mac = unsafePerformIO $ makeMachine rnd
-          case repl mac prg of
-            Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
-            Right lst -> do
-              H.table $ do
-                H.tr $ do
-                  H.th ! A.rowspan "2" $ "PC"
-                  H.th ! A.rowspan "2" $ "Instruction"
-                  H.th ! A.colspan "12" ! A.style "background:#efe;" $ "Memory 11 - 0"
-                  H.th ! A.colspan "8"  ! A.style "background:#eef;" $ "Register 7 - 0"
-                  H.th ! A.colspan "4"  ! A.style "background:#fee;" $ "PSW"
-                H.tr $ do
-                  mapM_ (\m -> H.th ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse [0 .. 11])
-                  mapM_ (\r -> H.th ! A.style "background:#eef;" $ (H.toMarkup ("R" ++ show r))) (reverse [0 .. 7])
-                  mapM_ (\r -> H.th ! A.style "background:#fee;" $ r) ["N", "Z", "V", "C"]
-                mapM_ (\(ms, rs, psw, addr, asm) ->
-                         H.tr ! A.style "border: 1pt;" $ do
-                          H.td ! A.class_ "PC" $ H.toMarkup (if addr == -1 then "" else show addr)
-                          H.td ! A.class_ "opcode" $ H.toMarkup (if addr == -1 then "" else show asm)
-                          mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse (take 12 ms))
-                          mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse (take 8 rs))
-                          mapM_ (\f -> H.td ! A.style "background:#fee;" $ (H.toMarkup (show f))) psw
-                      ) lst
-                when (64 <= length lst) $
-                  H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $ "--- Your time slice expires. ---"
-      H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.;the bg image is by いらすとや)")
+
+resultPage :: Code -> H.Html
+resultPage (Code str randomize') = H.docTypeHtml $ do
+  let rnd = randomize' == "randomize on"
+  H.head $ do
+    H.link ! A.rel "stylesheet" ! A.href "https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+    H.style ! A.type_ "text/css" $ "<!-- \n\
+\table,tr,td,th {border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
+\textarea {margin:8px;padding:8px;}\n\
+\th {text-align:center;}\n\
+\td {text-align:right;font-family:monospace;width:26px;padding:2px;}\n\
+\.opcode {text-align:left;width:110px;padding-left:4px;}\n\
+\pre code {font-family:monospace;}\n\
+\-->"
+    H.title "A PDP11 simulator"
+  H.body $ do
+    H.h1 $ do
+      H.i ! A.class_ "fas fa-keyboard" ! A.style "padding-right:4pt;" $ " "
+      H.span "Assembly Code"
+    H.p $ do
+      H.form ! A.method "POST" ! A.action "run" $ do
+        H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ H.toMarkup str
+        H.p $ do
+          H.select ! A.id "randomize" ! A.name "randomize" $ do
+            H.optgroup ! A.label "Memory Randomization" $ do
+              if rnd
+                then do
+                  H.option ! A.selected  "randomize on" $   "randomize on"
+                  H.option "randomize off"
+                else do
+                  H.option "randomize on"
+                  H.option ! A.selected "randomize off" $ "randomize off"
+          H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" ! A.style "margin-left: 180px;" $ do
+            H.i ! A.class_ "fas fa-play" ! A.style "padding-right:4pt;" $ " "
+            H.span "UPDATE"
+    let prg = shaping str
+    if null prg
+      then do
+        H.p "You sent an empty program."
+        H.a ! A.href "/" $ "RESET"
+      else do
+        case asBits prg of
+          Left str -> return ()
+          Right l -> do
+            H.h1 $ do
+              H.i ! A.class_ "fas fa-download" ! A.style "padding-right:4pt;" $ " "
+              H.toMarkup $ "Binary Representation (ver. " ++ PDP.version ++ ")"
+            H.pre ! A.style "width:300px;background:#f8f8f8;border:1px solid #777;margin:8px;padding:8px;" $ H.code $ H.toMarkup l
+        H.h1 $ do
+          H.i ! A.class_ "fas fa-microchip" ! A.style "padding-right:4pt;" $ " "
+          H.toMarkup $ "Execution Trace (ver. " ++ PS.version ++ ")"
+        let mac = unsafePerformIO $ makeMachine rnd
+        case repl mac prg of
+          Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
+          Right lst -> do
+            H.table $ do
+              H.tr $ do
+                H.th ! A.rowspan "2" $ "PC"
+                H.th ! A.rowspan "2" $ "Instruction"
+                H.th ! A.colspan "12" ! A.style "background:#efe;" $ "Memory 11 - 0"
+                H.th ! A.colspan "8"  ! A.style "background:#eef;" $ "Register 7 - 0"
+                H.th ! A.colspan "4"  ! A.style "background:#fee;" $ "PSW"
+              H.tr $ do
+                mapM_ (\m -> H.th ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse [0 .. 11])
+                mapM_ (\r -> H.th ! A.style "background:#eef;" $ (H.toMarkup ("R" ++ show r))) (reverse [0 .. 7])
+                mapM_ (\r -> H.th ! A.style "background:#fee;" $ r) ["N", "Z", "V", "C"]
+              mapM_ (\(ms, rs, psw, addr, asm) ->
+                       H.tr ! A.style "border: 1pt;" $ do
+                        H.td ! A.class_ "PC" $ H.toMarkup (if addr == -1 then "" else show addr)
+                        H.td ! A.class_ "opcode" $ H.toMarkup (if addr == -1 then "" else show asm)
+                        mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse (take 12 ms))
+                        mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse (take 8 rs))
+                        mapM_ (\f -> H.td ! A.style "background:#fee;" $ (H.toMarkup (show f))) psw
+                    ) lst
+              when (64 <= length lst) $
+                H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $ "--- Your time slice expires. ---"
+    H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
 
 shaping :: String -> String
 shaping str = unlines . filter (not . null) . map trim . lines $ str
