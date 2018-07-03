@@ -91,7 +91,7 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
         H.form ! A.method "POST" ! A.action "run" $ do
           H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ H.toMarkup str
           H.p $ do
-            
+
             H.select ! A.id "randomize" ! A.name "randomize" $ do
               H.optgroup ! A.label "Memory Randomization" $ do
                 if rnd
@@ -131,8 +131,8 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
                   mapM_ (\r -> H.th ! A.style "background:#fee;" $ r) ["N", "Z", "V", "C"]
                 mapM_ (\(ms, rs, psw, addr, asm) ->
                          H.tr ! A.style "border: 1pt;" $ do
-                          H.td ! A.class_ "PC" $ H.toMarkup (show addr) 
-                          H.td ! A.class_ "opcode" $ H.toMarkup (show asm) 
+                          H.td ! A.class_ "PC" $ H.toMarkup (show addr)
+                          H.td ! A.class_ "opcode" $ H.toMarkup (show asm)
                           mapM_ (\m -> H.td ! A.style "background:#efe;" $ (H.toMarkup (show m))) (reverse (take 12 ms))
                           mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse (take 8 rs))
                           mapM_ (\f -> H.td ! A.style "background:#fee;" $ (H.toMarkup (show f))) psw
