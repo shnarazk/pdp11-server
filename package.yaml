@@ -1,5 +1,5 @@
 name:                pdp11-server
-version:             0.5.0.0
+version:             0.5.1.0
 synopsis:            A web interface of PDP11
 description:         A web interface of PDP11
 homepage:            https://gitlab.com/cisl407/classroom/pdp11-server

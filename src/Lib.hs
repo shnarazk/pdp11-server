@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.5.0.0"
+version = "0.5.1.0"
 
 data Code = Code
  {
@@ -74,7 +74,8 @@ homePage = H.docTypeHtml $ do
       H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
 
 resultPage :: Code -> H.Html
-resultPage (Code str rnd) = H.docTypeHtml $ do
+resultPage (Code str randomize') = H.docTypeHtml $ do
+  let rnd = randomize' == "randomize on"
   H.head $ do
     H.style ! A.type_ "text/css" $ "<!-- \n\
 \table,tr,td,th {border:1px black solid;border-collapse:collapse;font-family:monospace;}\n\
@@ -90,10 +91,16 @@ resultPage (Code str rnd) = H.docTypeHtml $ do
         H.form ! A.method "POST" ! A.action "run" $ do
           H.p $ H.textarea ! A.name "program" ! A.cols "40" ! A.rows "10" $ H.toMarkup str
           H.p $ do
+            
             H.select ! A.id "randomize" ! A.name "randomize" $ do
               H.optgroup ! A.label "Memory Randomization" $ do
-                H.option "randomize on"
-                H.option ! A.selected "randomize off" $ "randomize off"
+                if rnd
+                  then do
+                    H.option ! A.selected  "randomize on" $   "randomize on"
+                    H.option "randomize off"
+                  else do
+                    H.option "randomize on"
+                    H.option ! A.selected "randomize off" $ "randomize off"
             H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" ! A.style "margin-left: 120px;" $ "UPDATE"
       let prg = shaping str
       if null prg
@@ -107,7 +114,7 @@ resultPage (Code str rnd) = H.docTypeHtml $ do
               H.h1 $ H.toMarkup $ "Binary Representation (ver. " ++ PDP.version ++ ")"
               H.pre ! A.style "width:300px;background:#f8f8f8;border:1px solid #777;margin:8px;padding:8px;" $ H.code $ H.toMarkup l
           H.h1 $ H.toMarkup $ "Execution Trace (ver. " ++ PS.version ++ ")"
-          let mac = unsafePerformIO $ makeMachine (rnd == "randomize on")
+          let mac = unsafePerformIO $ makeMachine rnd
           case repl mac prg of
             Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
             Right lst -> do
