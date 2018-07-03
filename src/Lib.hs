@@ -138,6 +138,7 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
                           mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse (take 8 rs))
                           mapM_ (\f -> H.td ! A.style "background:#fee;" $ (H.toMarkup (show f))) psw
                       ) lst
+              when (64 <= length lst) $ H.span ! A.style "color:red;" $ "--- Your time slice expires. ---"
       H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
 
 shaping :: String -> String
