@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.6.1.0"
+version = "0.6.2.0"
 
 data Code = Code
  {
@@ -129,13 +129,13 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
         H.p "You sent an empty program."
         H.a ! A.href "/" $ "RESET"
       else do
-        case asBits prg of
+        case showBinaryCode 100 <$> PA.assemble prg of
           Left str -> return ()
           Right l -> do
             H.h1 $ do
               H.i ! A.class_ "fas fa-download" ! A.style "padding-right:4pt;" $ " "
               H.toMarkup $ "Binary Representation (ver. " ++ PDP.version ++ ")"
-            H.pre ! A.style "width:300px;background:#f8f8f8;border:1px solid #777;margin:8px;padding:8px;" $ H.code $ H.toMarkup l
+            H.pre ! A.style "width:520px;background:#f8f8f8;border:1px solid #777;margin:8px;padding:8px;" $ H.code $ H.toMarkup (concatMap (++ "\n") l)
         H.h1 $ do
           H.i ! A.class_ "fas fa-microchip" ! A.style "padding-right:4pt;" $ " "
           H.toMarkup $ "Execution Trace (ver. " ++ PS.version ++ ")"
@@ -162,8 +162,12 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
                         mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse (take 8 rs))
                         mapM_ (\f -> H.td ! A.style "background:#fee;" $ (H.toMarkup (show f))) psw
                     ) lst
-              when (64 <= length lst) $
-                H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $ "--- Your time slice expires. ---"
+              H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $
+                if 64 <= length lst
+                  then H.span "--- Your time slice expires. ---"
+                  else do
+                    H.i ! A.class_ "fas fa-power-off" ! A.style "padding-right:4pt;" $ " "
+                    H.span $ "Your program terminated because the PC pointed to an illegal address."
     H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
 
 shaping :: String -> String
@@ -172,12 +176,6 @@ shaping str = unlines . filter (not . null) . map trim . lines $ str
 
 repl :: PDP.Machine -> String -> Either String [([Int], [Int], [Int], Int, PDP.ASM)]
 repl machine str = map PDP.dump <$> PS.runSimulator 64 machine <$> PA.assemble str
-
-asBits :: String -> Either String String
-asBits str = (unlines . zipWith merge [pc, pc + 2 ..] . concatMap PDP.toBitBlocks) <$> PA.assemble str
-  where
-    pc = (PDP._pc PDP.initialMachine)
-    merge addr code = "  " ++ show addr ++ "        " ++ show code
 
 makeMachine :: Bool -> IO PDP.Machine
 makeMachine False = return PDP.initialMachine
@@ -194,3 +192,10 @@ makeMachine True = do
                          , mod r4 256, div r4 256
                          , mod r5 256, div r5 256
                          ] [0,0,0,0,0,0,0,100]
+
+showBinaryCode :: Int -> [PDP.ASM] -> [String]
+showBinaryCode start prg = zipWith merge [start, start + 2 ..] $  concatMap (printer . PDP.toBitBlocks) prg
+  where printer (oc:ols) = l1 : map show ols
+          where l1 = show oc ++ "         # " ++ show (PDP.decodeWord (PDP.asInt oc) (ols' !! 0, ols' !! 1))
+                ols' = map PDP.asInt ols ++ [0, 0]
+        merge n s = show n ++ "        " ++ s
