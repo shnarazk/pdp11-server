@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.6.1.0"
+version = "0.6.2.0"
 
 data Code = Code
  {
@@ -162,8 +162,12 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
                         mapM_ (\r -> H.td ! A.style "background:#eef;" $ (H.toMarkup (show r))) (reverse (take 8 rs))
                         mapM_ (\f -> H.td ! A.style "background:#fee;" $ (H.toMarkup (show f))) psw
                     ) lst
-              when (64 <= length lst) $
-                H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $ "--- Your time slice expires. ---"
+              H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $
+                if 64 <= length lst
+                  then H.span "--- Your time slice expires. ---"
+                  else do
+                    H.i ! A.class_ "fas fa-power-off" ! A.style "padding-right:4pt;" $ " "
+                    H.span $ "Your program terminated because the PC pointed to an illegal address."
     H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
 
 shaping :: String -> String
