@@ -164,7 +164,9 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
                     ) lst
               H.tr ! A.style "background;#fcc;" $ H.td ! A.colspan "26" ! A.style "color:red;text-align:center;" $
                 if 64 <= length lst
-                  then H.span "--- Your time slice expires. ---"
+                  then do
+                    H.i ! A.class_ "fas fa-hourglass-end" ! A.style "padding-right:4pt;" $ " "
+                    H.span "Your time slice expires."
                   else do
                     H.i ! A.class_ "fas fa-power-off" ! A.style "padding-right:4pt;" $ " "
                     H.span $ "Your program terminated because the PC pointed to an illegal address."
