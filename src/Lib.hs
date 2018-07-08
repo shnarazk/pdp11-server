@@ -170,7 +170,10 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
                   else do
                     H.i ! A.class_ "fas fa-power-off" ! A.style "padding-right:4pt;" $ " "
                     H.span $ "Your program terminated because the PC pointed to an illegal address."
-    H.p ! A.style "text-align: right;" $ H.toMarkup ("version " ++ version ++ " by nrzk, nagasaki-u.")
+    H.p ! A.style "text-align: right;" $ do
+      H.span $ H.toMarkup $ "version " ++ version ++ " by "
+      H.a ! A.href "mailto:incoming+cisl407/classroom/pdp11-server@incoming.gitlab.com" $ "nrzk"
+      H.span ", nagasaki-u."
 
 shaping :: String -> String
 shaping str = unlines . filter (not . null) . map trim . lines $ str
