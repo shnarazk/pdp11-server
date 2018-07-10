@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.6.3.0"
+version = "0.6.4.0"
 
 data Code = Code
  {
@@ -123,24 +123,27 @@ resultPage (Code str randomize') = H.docTypeHtml $ do
           H.button ! A.type_ "submit" ! A.name "action" ! A.value "send" ! A.style "margin-left: 180px;" $ do
             H.i ! A.class_ "fas fa-play" ! A.style "padding-right:4pt;" $ " "
             H.span "UPDATE"
-    let prg = shaping str
-    if null prg
+    let prgStr = shaping str
+    if null prgStr
       then do
         H.p "You sent an empty program."
         H.a ! A.href "/" $ "RESET"
       else do
-        case showBinaryCode 100 <$> PA.assemble prg of
+        let prg = PA.assemble prgStr
+        case showBinaryCode 100 <$> prg of
           Left str -> return ()
           Right l -> do
             H.h1 $ do
               H.i ! A.class_ "fas fa-download" ! A.style "padding-right:4pt;" $ " "
               H.toMarkup $ "Binary Representation (ver. " ++ PDP.version ++ ")"
             H.pre ! A.style "width:520px;background:#f8f8f8;border:1px solid #777;margin:8px;padding:8px;" $ H.code $ H.toMarkup (concatMap (++ "\n") l)
+            let Right prg' = prg
+            H.p ! A.style "padding-left: 80pt" $ H.toMarkup $ (\(c, k) -> "Total " ++ show c ++ " Byte, " ++ show k ++ " opcode kinds.") $ statsOnCode prg'
         H.h1 $ do
           H.i ! A.class_ "fas fa-microchip" ! A.style "padding-right:4pt;" $ " "
           H.toMarkup $ "Execution Trace (ver. " ++ PS.version ++ ")"
         let mac = unsafePerformIO $ makeMachine rnd
-        case repl mac prg of
+        case repl mac prgStr of
           Left str -> H.pre ! A.style "background: #fee;" $ H.toMarkup str
           Right lst -> do
             H.table $ do
@@ -195,6 +198,9 @@ makeMachine True = do
                          , mod r4 256, div r4 256
                          , mod r5 256, div r5 256
                          ] [0,0,0,0,0,0,0,100]
+
+statsOnCode :: [PDP.ASM] -> (Int, Int)
+statsOnCode prg = (2 * sum (map (length . PDP.toBitBlocks) prg), PDP.countOpcodes prg)
 
 showBinaryCode :: Int -> [PDP.ASM] -> [String]
 showBinaryCode start prg = zipWith merge [start, start + 2 ..] $  concatMap (printer . PDP.toBitBlocks) prg
