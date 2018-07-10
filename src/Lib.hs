@@ -28,7 +28,7 @@ import qualified Simulator as PS
 import Web.FormUrlEncoded(FromForm(..), ToForm(..))
 
 version :: String
-version = "0.6.4.0"
+version = "0.6.4.1"
 
 data Code = Code
  {
@@ -184,7 +184,10 @@ repl :: PDP.Machine -> String -> Either String [([Int], [Int], [Int], Int, PDP.A
 repl machine str = map PDP.dump <$> PS.runSimulator 64 machine <$> PA.assemble str
 
 makeMachine :: Bool -> IO PDP.Machine
-makeMachine False = return PDP.initialMachine
+makeMachine False =
+  return $ PDP.makePDP11
+                  [ 0, 0, 1, 0, 2, 0, 3, 0, 1, 1, 0, 0 ]
+                  [ 0, 0, 0, 0, 0, 0, 0, 100 ]
 makeMachine True = do
   r1 <- getStdRandom (randomR (0, 128))
   r2 <- getStdRandom (randomR (0, 128))
